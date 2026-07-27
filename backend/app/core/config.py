@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     DATABASE_URL: str = "postgresql://postgres:postgres@db:5432/swe_agent_db"
     ENVIRONMENT: str = "development"
+    GITHUB_TOKEN: str = ""
     
     # CORS Origins allowed to talk to the backend
     BACKEND_CORS_ORIGINS: List[str] = [
