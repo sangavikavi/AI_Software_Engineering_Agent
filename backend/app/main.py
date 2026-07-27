@@ -1,6 +1,23 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+import logging
+
 from app.core.config import settings
+from app.core.database import Base, engine, get_db
+from app.models.code import Repository
+from app.api.repositories import router as repos_router
+from app.api.agents import router as agents_router
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Initialize database tables on module import/app startup
+logger.info("Initializing SQLite database schemas...")
+Base.metadata.create_all(bind=engine)
+logger.info("Database schemas initialized.")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -35,12 +52,24 @@ def health_check():
 api_router = APIRouter()
 
 @api_router.get("/status")
-def get_status():
+def get_status(db: Session = Depends(get_db)):
+    try:
+        # Check database connection and count repositories
+        repo_count = db.query(Repository).count()
+        db_connected = True
+    except Exception as e:
+        logger.error(f"Database status check failed: {e}")
+        repo_count = 0
+        db_connected = False
+
     return {
         "agent_active": False,
-        "database_connected": True,  # Will verify database query here in Stage 2
-        "repositories_connected": 0,
+        "database_connected": db_connected,
+        "repositories_connected": repo_count,
         "running_jobs": 0
     }
 
+# Include routers
 app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(repos_router, prefix=settings.API_V1_STR)
+app.include_router(agents_router, prefix=settings.API_V1_STR)
