@@ -52,6 +52,7 @@ function App() {
   
   // Navigation Page routing state
   const [currentPage, setCurrentPage] = useState<Page>('workspace');
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   
   // Workspace and Repo states
   const [repoUrl, setRepoUrl] = useState('');
@@ -399,7 +400,7 @@ function App() {
               <button
                 type="submit"
                 disabled={isSubmittingRun || activeRunId !== null || !instruction || selectedRepoId === null}
-                className="inline-flex items-center justify-center font-bold text-xs px-6 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center justify-center font-bold text-xs px-6 py-2.5 rounded-lg bg-indigo-650 text-white hover:bg-indigo-500 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
               >
                 {isSubmittingRun || activeRunId !== null ? 'RUNNING...' : 'EXECUTE'}
               </button>
@@ -423,12 +424,12 @@ function App() {
             <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-4 font-mono text-[13px] leading-7 overflow-y-auto max-h-[350px] shadow-inner">
               {logs.map((log, idx) => {
                 let logClass = "text-slate-800";
-                if (log.toLowerCase().includes("error")) logClass = "text-rose-650 font-bold";
-                else if (log.toLowerCase().includes("system:")) logClass = "text-cyan-650 font-bold";
-                else if (log.toLowerCase().includes("planner:")) logClass = "text-indigo-650 font-semibold";
-                else if (log.toLowerCase().includes("coder:")) logClass = "text-amber-650 font-semibold";
-                else if (log.toLowerCase().includes("tester:")) logClass = "text-emerald-650 font-semibold";
-                else if (log.toLowerCase().includes("reviewer:")) logClass = "text-purple-650 font-bold";
+                if (log.toLowerCase().includes("error")) logClass = "text-rose-655 font-bold";
+                else if (log.toLowerCase().includes("system:")) logClass = "text-cyan-655 font-bold";
+                else if (log.toLowerCase().includes("planner:")) logClass = "text-indigo-655 font-semibold";
+                else if (log.toLowerCase().includes("coder:")) logClass = "text-amber-655 font-semibold";
+                else if (log.toLowerCase().includes("tester:")) logClass = "text-emerald-655 font-semibold";
+                else if (log.toLowerCase().includes("reviewer:")) logClass = "text-purple-655 font-bold";
 
                 return (
                   <div key={idx} className={`${logClass} mb-2`}>
@@ -452,10 +453,10 @@ function App() {
                   
                   return (
                     <div key={idx} className="flex gap-3 items-start text-[12px] leading-relaxed">
-                      <span className={`font-bold text-[14px] ${isCompleted ? 'text-emerald-600' : isActive ? 'text-indigo-650' : 'text-slate-400'}`}>
+                      <span className={`font-bold text-[14px] ${isCompleted ? 'text-emerald-600' : isActive ? 'text-indigo-655' : 'text-slate-400'}`}>
                         {isCompleted ? '✔' : isActive ? '▶' : '○'}
                       </span>
-                      <div className={isCompleted ? 'text-slate-400 line-through' : isActive ? 'text-indigo-650 font-bold' : 'text-slate-700 font-semibold'}>
+                      <div className={isCompleted ? 'text-slate-400 line-through' : isActive ? 'text-indigo-655 font-bold' : 'text-slate-700 font-semibold'}>
                         {step}
                       </div>
                     </div>
@@ -529,7 +530,7 @@ function App() {
           <button
             type="submit"
             disabled={isConnecting || !repoUrl || !repoName}
-            className="mt-2 w-full inline-flex items-center justify-center font-bold text-xs px-5 py-2.5 rounded-lg bg-indigo-650 text-white hover:bg-indigo-650/95 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
+            className="mt-2 w-full inline-flex items-center justify-center font-bold text-xs px-5 py-2.5 rounded-lg bg-indigo-650 text-white hover:bg-indigo-655/95 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
           >
             {isConnecting ? 'Cloning & Parsing...' : 'Connect Git URL'}
           </button>
@@ -597,7 +598,7 @@ function App() {
       
       {/* Environment Status info */}
       <section className="glass-panel p-6 rounded-2xl lg:col-span-1 flex flex-col gap-4">
-        <h2 className="text-lg font-semibold text-slate-805 flex items-center gap-2">
+        <h2 className="text-lg font-semibold text-slate-855 flex items-center gap-2">
           <span className="text-emerald-500">🧪</span>
           Sandbox Environment
         </h2>
@@ -630,7 +631,7 @@ function App() {
 
       {/* Sandbox Test Logs */}
       <section className="glass-panel p-6 rounded-2xl lg:col-span-2 min-h-[400px] flex flex-col">
-        <h2 className="text-lg font-semibold text-slate-805 mb-2">Sandbox Test Outputs</h2>
+        <h2 className="text-lg font-semibold text-slate-855 mb-2">Sandbox Test Outputs</h2>
         <p className="text-slate-500 text-xs mb-4">Live syntax check and test execution details for the latest agent run.</p>
         
         {runDetails && runDetails.test_results && Object.keys(runDetails.test_results).length > 0 ? (
@@ -678,13 +679,13 @@ function App() {
       
       {/* Gate Controls & PR URL */}
       <section className="glass-panel p-6 rounded-2xl lg:col-span-1 flex flex-col gap-4 h-fit">
-        <h2 className="text-lg font-semibold text-slate-805 flex items-center gap-2">
+        <h2 className="text-lg font-semibold text-slate-855 flex items-center gap-2">
           <span className="text-indigo-500">🌳</span>
           Git & GitHub Manager
         </h2>
         
         {runDetails && runDetails.status === 'ready' && (
-          <div className="bg-cyan-50 border border-cyan-300 p-4 rounded-xl flex flex-col gap-2.5 shadow-sm">
+          <div className="bg-cyan-55 border border-cyan-300 p-4 rounded-xl flex flex-col gap-2.5 shadow-sm">
             <h3 className="text-xs font-bold text-cyan-800 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-cyan-500 animate-ping"></span>
               Human Gate Approval Ready
@@ -719,7 +720,7 @@ function App() {
                     href={prUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full inline-flex items-center justify-center font-bold text-xs px-4 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 shadow-md transition-all text-center cursor-pointer"
+                    className="w-full inline-flex items-center justify-center font-bold text-xs px-4 py-2.5 rounded-lg bg-indigo-650 text-white hover:bg-indigo-500 shadow-md transition-all text-center cursor-pointer"
                   >
                     View PR on GitHub ↗
                   </a>
@@ -748,7 +749,7 @@ function App() {
 
       {/* Code Diffs Viewer */}
       <section className="glass-panel p-6 rounded-2xl lg:col-span-2 flex flex-col min-h-[400px]">
-        <h2 className="text-lg font-semibold text-slate-805 mb-2">Proposed Code Changes</h2>
+        <h2 className="text-lg font-semibold text-slate-855 mb-2">Proposed Code Changes</h2>
         <p className="text-slate-500 text-xs mb-4">View file edits formulated by the multi-agent graph.</p>
         
         {runDetails && Object.keys(runDetails.proposed_changes).length > 0 ? (
@@ -756,7 +757,7 @@ function App() {
             {Object.entries(runDetails.proposed_changes).map(([filePath, content]) => (
               <div key={filePath} className="border border-slate-200 rounded-lg overflow-hidden flex flex-col shadow">
                 <div className="bg-slate-50 border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
-                  <span className="font-mono text-xs text-indigo-650 font-bold truncate max-w-[300px]">{filePath}</span>
+                  <span className="font-mono text-xs text-indigo-655 font-bold truncate max-w-[300px]">{filePath}</span>
                   <span className="text-[9px] text-slate-400 font-bold uppercase font-mono tracking-wider">COMPLETE FILE</span>
                 </div>
                 
@@ -772,7 +773,7 @@ function App() {
             ))}
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-slate-450">
+          <div className="flex-1 flex flex-col items-center justify-center text-slate-455">
             <span className="text-4xl">📁</span>
             <span className="text-sm mt-3 font-bold text-slate-600">No code changes proposed yet</span>
             <p className="text-xs text-slate-500 mt-1">Start a run to see diff packages.</p>
@@ -789,7 +790,7 @@ function App() {
       
       {/* Create Jira Story Form */}
       <section className="glass-panel p-6 rounded-2xl lg:col-span-1 h-fit">
-        <h2 className="text-lg font-semibold mb-2 flex items-center gap-2 text-slate-850">
+        <h2 className="text-lg font-semibold mb-2 flex items-center gap-2 text-slate-855">
           <svg className="text-indigo-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
@@ -858,7 +859,7 @@ function App() {
                 </div>
                 <button
                   onClick={() => handleImportJiraStory(issue)}
-                  className="mt-1 w-full inline-flex items-center justify-center font-bold text-[10px] px-2.5 py-1.5 rounded bg-indigo-600 text-white hover:bg-indigo-500 shadow-sm transition-all cursor-pointer"
+                  className="mt-1 w-full inline-flex items-center justify-center font-bold text-[10px] px-2.5 py-1.5 rounded bg-indigo-650 text-white hover:bg-indigo-500 shadow-sm transition-all cursor-pointer"
                 >
                   Import & Execute
                 </button>
@@ -928,96 +929,193 @@ function App() {
     <div className="flex h-screen w-screen overflow-hidden light-grid-bg">
 
       {/* 1. LEFT SIDEBAR NAVIGATION */}
-      <aside className="w-[260px] h-full flex flex-col bg-slate-50 border-r border-slate-200 z-20 flex-shrink-0">
+      <aside className={`${isSidebarExpanded ? 'w-[260px]' : 'w-16'} h-full flex flex-col bg-slate-50 border-r border-slate-200 z-20 flex-shrink-0 transition-all duration-300 ease-in-out`}>
         
         {/* Brand logo */}
-        <div className="p-5 border-b border-slate-200 flex items-center gap-3">
-          <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-sm font-bold text-white shadow-[0_0_15px_rgba(99,102,241,0.35)] animate-pulse">
-            SC
-          </span>
-          <div>
-            <h1 className="text-sm font-extrabold text-slate-800 tracking-wider font-heading">SWE WORKSPACE</h1>
-            <span className="text-[9px] text-slate-500 font-bold font-mono">v1.2.0 // DEPLOYED</span>
+        <div className={`p-5 border-b border-slate-200 flex items-center justify-between gap-3 ${isSidebarExpanded ? '' : 'flex-col'}`}>
+          <div className="flex items-center gap-3">
+            <div className="relative flex items-center justify-center">
+              <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-xs font-bold text-white shadow-[0_4px_12px_rgba(99,102,241,0.3)] z-10">
+                SC
+              </span>
+              <span className="absolute w-8 h-8 rounded-lg bg-indigo-500 animate-ping opacity-25"></span>
+            </div>
+            {isSidebarExpanded && (
+              <div className="animate-fade-in">
+                <h1 className="text-xs font-extrabold text-slate-800 tracking-widest font-heading">SWE WORKSPACE</h1>
+                <span className="text-[9px] text-indigo-650 font-bold font-mono uppercase tracking-wider">Agent IDE Platform</span>
+              </div>
+            )}
           </div>
+          
+          <button
+            onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+            className="p-1 hover:bg-slate-200/60 rounded-lg text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+            title={isSidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
+          >
+            {isSidebarExpanded ? (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" />
+              </svg>
+            )}
+          </button>
         </div>
 
         {/* Navigation list */}
-        <nav className="flex-1 p-4 flex flex-col gap-2.5 overflow-y-auto">
-          <button
-            onClick={() => setCurrentPage('workspace')}
-            className={`w-full px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer ${
-              currentPage === 'workspace'
-                ? 'bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm'
-                : 'text-slate-650 hover:text-slate-900 hover:bg-slate-100/80 border border-transparent'
-            }`}
-          >
-            <span className="text-sm">🚀</span>
-            Workspace Console
-          </button>
+        <nav className="flex-1 p-4 flex flex-col gap-4 overflow-y-auto">
           
-          <button
-            onClick={() => setCurrentPage('repos')}
-            className={`w-full px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer ${
-              currentPage === 'repos'
-                ? 'bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm'
-                : 'text-slate-650 hover:text-slate-900 hover:bg-slate-100/80 border border-transparent'
-            }`}
-          >
-            <span className="text-sm">📁</span>
-            Codebase Repos
-          </button>
-          
-          <button
-            onClick={() => setCurrentPage('sandbox')}
-            className={`w-full px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer ${
-              currentPage === 'sandbox'
-                ? 'bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm'
-                : 'text-slate-650 hover:text-slate-900 hover:bg-slate-100/80 border border-transparent'
-            }`}
-          >
-            <span className="text-sm">🧪</span>
-            Sandbox Runner
-          </button>
-          
-          <button
-            onClick={() => setCurrentPage('git')}
-            className={`w-full px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer ${
-              currentPage === 'git'
-                ? 'bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm'
-                : 'text-slate-655 hover:text-slate-900 hover:bg-slate-100/80 border border-transparent'
-            }`}
-          >
-            <span className="text-sm">🌳</span>
-            Git & PR Manager
-          </button>
-          
-          <button
-            onClick={() => setCurrentPage('jira')}
-            className={`w-full px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer ${
-              currentPage === 'jira'
-                ? 'bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm'
-                : 'text-slate-650 hover:text-slate-900 hover:bg-slate-100/80 border border-transparent'
-            }`}
-          >
-            <span className="text-sm">📋</span>
-            Jira Board
-          </button>
+          {/* Group 1: Core Console */}
+          <div className="flex flex-col gap-1.5">
+            {isSidebarExpanded && <span className="px-3 text-[9px] font-extrabold text-slate-400 tracking-wider uppercase mb-1">Core Console</span>}
+            
+            <button
+              onClick={() => setCurrentPage('workspace')}
+              className={`relative py-2.5 rounded-lg text-xs font-semibold flex items-center transition-all cursor-pointer hover:bg-slate-200/50 hover:text-slate-900 ${
+                isSidebarExpanded ? 'pl-9 pr-3 gap-3 justify-start' : 'justify-center w-9 h-9 mx-auto'
+              } ${
+                currentPage === 'workspace'
+                  ? 'bg-indigo-50 border border-indigo-200/70 text-indigo-700 shadow-sm'
+                  : 'text-slate-650 border border-transparent'
+              }`}
+              title={isSidebarExpanded ? "" : "Workspace Console"}
+            >
+              {currentPage === 'workspace' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-650 rounded-r"></span>}
+              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'workspace' ? 'text-indigo-650' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <line x1="9" y1="3" x2="9" y2="21" />
+              </svg>
+              {isSidebarExpanded && <span className="animate-fade-in">Workspace Console</span>}
+            </button>
+            
+            <button
+              onClick={() => setCurrentPage('repos')}
+              className={`relative py-2.5 rounded-lg text-xs font-semibold flex items-center transition-all cursor-pointer hover:bg-slate-200/50 hover:text-slate-900 ${
+                isSidebarExpanded ? 'pl-9 pr-3 gap-3 justify-start' : 'justify-center w-9 h-9 mx-auto'
+              } ${
+                currentPage === 'repos'
+                  ? 'bg-indigo-50 border border-indigo-200/70 text-indigo-700 shadow-sm'
+                  : 'text-slate-655 border border-transparent'
+              }`}
+              title={isSidebarExpanded ? "" : "Codebase Repos"}
+            >
+              {currentPage === 'repos' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-650 rounded-r"></span>}
+              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'repos' ? 'text-indigo-650' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+              </svg>
+              {isSidebarExpanded && <span className="animate-fade-in">Codebase Repos</span>}
+            </button>
+          </div>
+
+          {/* Group 2: Sandbox & VCS */}
+          <div className="flex flex-col gap-1.5">
+            {isSidebarExpanded && <span className="px-3 text-[9px] font-extrabold text-slate-400 tracking-wider uppercase mb-1">Sandbox & VCS</span>}
+            
+            <button
+              onClick={() => setCurrentPage('sandbox')}
+              className={`relative py-2.5 rounded-lg text-xs font-semibold flex items-center transition-all cursor-pointer hover:bg-slate-200/50 hover:text-slate-900 ${
+                isSidebarExpanded ? 'pl-9 pr-3 gap-3 justify-start' : 'justify-center w-9 h-9 mx-auto'
+              } ${
+                currentPage === 'sandbox'
+                  ? 'bg-indigo-50 border border-indigo-200/70 text-indigo-700 shadow-sm'
+                  : 'text-slate-655 border border-transparent'
+              }`}
+              title={isSidebarExpanded ? "" : "Sandbox Runner"}
+            >
+              {currentPage === 'sandbox' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-650 rounded-r"></span>}
+              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'sandbox' ? 'text-indigo-650' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path d="M10 2v7.31L4.75 19.9a1 1 0 0 0 .89 1.45h12.72a1 1 0 0 0 .89-1.45L14 9.31V2M8.5 2h7M7 16h10" />
+              </svg>
+              {isSidebarExpanded && <span className="animate-fade-in">Sandbox Runner</span>}
+            </button>
+            
+            <button
+              onClick={() => setCurrentPage('git')}
+              className={`relative py-2.5 rounded-lg text-xs font-semibold flex items-center transition-all cursor-pointer hover:bg-slate-200/50 hover:text-slate-900 ${
+                isSidebarExpanded ? 'pl-9 pr-3 gap-3 justify-start' : 'justify-center w-9 h-9 mx-auto'
+              } ${
+                currentPage === 'git'
+                  ? 'bg-indigo-50 border border-indigo-200/70 text-indigo-700 shadow-sm'
+                  : 'text-slate-655 border border-transparent'
+              }`}
+              title={isSidebarExpanded ? "" : "Git & PR Manager"}
+            >
+              {currentPage === 'git' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-650 rounded-r"></span>}
+              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'git' ? 'text-indigo-650' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <circle cx="18" cy="18" r="3" />
+                <circle cx="6" cy="6" r="3" />
+                <circle cx="6" cy="18" r="3" />
+                <path d="M18 15V9a4 4 0 0 0-4-4H9M6 9v6" />
+              </svg>
+              {isSidebarExpanded && <span className="animate-fade-in">Git & PR Manager</span>}
+            </button>
+          </div>
+
+          {/* Group 3: Integrations */}
+          <div className="flex flex-col gap-1.5">
+            {isSidebarExpanded && <span className="px-3 text-[9px] font-extrabold text-slate-400 tracking-wider uppercase mb-1">Integrations</span>}
+            
+            <button
+              onClick={() => setCurrentPage('jira')}
+              className={`relative py-2.5 rounded-lg text-xs font-semibold flex items-center transition-all cursor-pointer hover:bg-slate-200/50 hover:text-slate-900 ${
+                isSidebarExpanded ? 'pl-9 pr-3 gap-3 justify-start' : 'justify-center w-9 h-9 mx-auto'
+              } ${
+                currentPage === 'jira'
+                  ? 'bg-indigo-50 border border-indigo-200/70 text-indigo-700 shadow-sm'
+                  : 'text-slate-655 border border-transparent'
+              }`}
+              title={isSidebarExpanded ? "" : "Jira Board"}
+            >
+              {currentPage === 'jira' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-650 rounded-r"></span>}
+              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'jira' ? 'text-indigo-650' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <line x1="3" y1="9" x2="21" y2="9" />
+                <line x1="9" y1="21" x2="9" y2="9" />
+              </svg>
+              {isSidebarExpanded && <span className="animate-fade-in">Jira Board</span>}
+            </button>
+          </div>
+
         </nav>
 
         {/* Connectivity status */}
-        <div className="p-4 border-t border-slate-200 flex flex-col gap-2 font-mono text-[9px] text-slate-500 bg-slate-100/80">
-          <div className="flex justify-between items-center">
-            <span>API SERVER:</span>
-            <span className={`font-bold ${status.api_online ? 'text-emerald-600' : 'text-rose-650'}`}>
-              {status.api_online ? 'ONLINE' : 'OFFLINE'}
-            </span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span>DATABASE:</span>
-            <span className={`font-bold ${status.database_connected ? 'text-emerald-600' : 'text-amber-650'}`}>
-              {status.database_connected ? 'CONNECTED' : 'IDLE'}
-            </span>
-          </div>
+        <div className="p-4 border-t border-slate-200 bg-slate-100/40 flex flex-col gap-3 font-sans">
+          {isSidebarExpanded ? (
+            <div className="animate-fade-in flex flex-col gap-3">
+              <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Workspace Telemetry</div>
+              
+              <div className="flex flex-col gap-2 text-[10.5px] font-mono">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">API Gateway</span>
+                  <span className="flex items-center gap-1.5 font-bold text-slate-800">
+                    <span className={`w-1.5 h-1.5 rounded-full ${status.api_online ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></span>
+                    {status.api_online ? 'Active' : 'Offline'}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Local SQLite</span>
+                  <span className="flex items-center gap-1.5 font-bold text-slate-800">
+                    <span className={`w-1.5 h-1.5 rounded-full ${status.database_connected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></span>
+                    {status.database_connected ? 'Connected' : 'Idle'}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center border-t border-slate-200/60 pt-2 mt-1">
+                  <span className="text-slate-400 text-[9px]">Localhost</span>
+                  <span className="text-slate-500 text-[9.5px]">127.0.0.1:8000</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2 py-1 justify-center animate-fade-in">
+              <span className={`w-2 h-2 rounded-full ${status.api_online ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} title={`API: ${status.api_online ? 'Online' : 'Offline'}`}></span>
+              <span className={`w-2 h-2 rounded-full ${status.database_connected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} title={`DB: ${status.database_connected ? 'Connected' : 'Idle'}`}></span>
+            </div>
+          )}
         </div>
 
       </aside>
