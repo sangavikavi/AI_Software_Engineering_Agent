@@ -72,11 +72,37 @@ function App() {
   const [newJiraSummary, setNewJiraSummary] = useState('');
   const [newJiraDesc, setNewJiraDesc] = useState('');
   const [isCreatingJira, setIsCreatingJira] = useState(false);
+  const [expandedJiraKeys, setExpandedJiraKeys] = useState<string[]>([]);
+
+  // Interactivity states
+  const [logFilter, setLogFilter] = useState<'all' | 'system' | 'errors' | 'agents'>('all');
+  const [isSimulated, setIsSimulated] = useState(true);
 
   // Log stream
   const [logs, setLogs] = useState<string[]>([
     "System: Console online. Awaiting repository connections..."
   ]);
+
+  const getFilteredLogs = () => {
+    if (logFilter === 'all') return logs;
+    if (logFilter === 'errors') return logs.filter(log => log.toLowerCase().includes('error') || log.toLowerCase().includes('failed') || log.toLowerCase().includes('failure'));
+    if (logFilter === 'system') return logs.filter(log => log.toLowerCase().includes('system:'));
+    if (logFilter === 'agents') {
+      return logs.filter(log => 
+        log.toLowerCase().includes('planner:') || 
+        log.toLowerCase().includes('coder:') || 
+        log.toLowerCase().includes('tester:') || 
+        log.toLowerCase().includes('reviewer:')
+      );
+    }
+    return logs;
+  };
+
+  const toggleJiraExpand = (key: string) => {
+    setExpandedJiraKeys(prev => 
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  };
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -408,35 +434,100 @@ function App() {
           </section>
 
           <section className="glass-panel p-6 rounded-2xl flex flex-col flex-1 min-h-[380px]">
-            <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
-              <h2 className="text-lg font-bold flex items-center gap-2 text-slate-850">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
                 <svg className="text-slate-600" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="4 17 10 11 4 5" />
                   <line x1="12" y1="19" x2="20" y2="19" />
                 </svg>
-                Terminal Event logs
-              </h2>
-              <span className="text-[10px] font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
-                {runDetails ? `STATE: ${runDetails.status.toUpperCase()}` : 'CONSOLE STANDBY'}
-              </span>
+                <h2 className="text-lg font-bold text-slate-850">Terminal Event logs</h2>
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <button
+                  onClick={() => setLogFilter('all')}
+                  className={`px-3 py-1 rounded-md border font-semibold transition-all cursor-pointer ${
+                    logFilter === 'all'
+                      ? 'bg-slate-800 text-white border-slate-800'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setLogFilter('system')}
+                  className={`px-3 py-1 rounded-md border font-semibold transition-all cursor-pointer ${
+                    logFilter === 'system'
+                      ? 'bg-slate-800 text-white border-slate-800'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  System
+                </button>
+                <button
+                  onClick={() => setLogFilter('errors')}
+                  className={`px-3 py-1 rounded-md border font-semibold transition-all cursor-pointer ${
+                    logFilter === 'errors'
+                      ? 'bg-slate-800 text-white border-slate-800'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  Errors
+                </button>
+                <button
+                  onClick={() => setLogFilter('agents')}
+                  className={`px-3 py-1 rounded-md border font-semibold transition-all cursor-pointer ${
+                    logFilter === 'agents'
+                      ? 'bg-slate-800 text-white border-slate-800'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  Agents
+                </button>
+                
+                <span className="w-px h-4 bg-slate-200 mx-1"></span>
+
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(logs.join('\n'));
+                    alert('Console logs copied to clipboard!');
+                  }}
+                  className="px-2.5 py-1 text-slate-600 bg-white hover:bg-slate-50 border border-slate-200 rounded-md font-semibold transition-all cursor-pointer flex items-center gap-1"
+                  title="Copy to clipboard"
+                >
+                  📋 Copy
+                </button>
+
+                <button
+                  onClick={() => setLogs(["System: Console logs cleared."])}
+                  className="px-2.5 py-1 text-rose-600 bg-white hover:bg-rose-50 border border-slate-200 rounded-md font-semibold transition-all cursor-pointer"
+                  title="Clear log items"
+                >
+                  🗑 Clear
+                </button>
+              </div>
             </div>
             
             <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-4 font-mono text-[13px] leading-7 overflow-y-auto max-h-[350px] shadow-inner">
-              {logs.map((log, idx) => {
-                let logClass = "text-slate-800";
-                if (log.toLowerCase().includes("error")) logClass = "text-rose-655 font-bold";
-                else if (log.toLowerCase().includes("system:")) logClass = "text-cyan-655 font-bold";
-                else if (log.toLowerCase().includes("planner:")) logClass = "text-indigo-655 font-semibold";
-                else if (log.toLowerCase().includes("coder:")) logClass = "text-amber-655 font-semibold";
-                else if (log.toLowerCase().includes("tester:")) logClass = "text-emerald-655 font-semibold";
-                else if (log.toLowerCase().includes("reviewer:")) logClass = "text-purple-655 font-bold";
+              {getFilteredLogs().length === 0 ? (
+                <div className="text-slate-400 italic text-center py-8">No matching log entries found for '{logFilter}'.</div>
+              ) : (
+                getFilteredLogs().map((log, idx) => {
+                  let logClass = "text-slate-800";
+                  if (log.toLowerCase().includes("error")) logClass = "text-rose-655 font-bold";
+                  else if (log.toLowerCase().includes("system:")) logClass = "text-cyan-655 font-bold";
+                  else if (log.toLowerCase().includes("planner:")) logClass = "text-indigo-655 font-semibold";
+                  else if (log.toLowerCase().includes("coder:")) logClass = "text-amber-655 font-semibold";
+                  else if (log.toLowerCase().includes("tester:")) logClass = "text-emerald-655 font-semibold";
+                  else if (log.toLowerCase().includes("reviewer:")) logClass = "text-purple-655 font-bold";
 
-                return (
-                  <div key={idx} className={`${logClass} mb-2`}>
-                    {log}
-                  </div>
-                );
-              })}
+                  return (
+                    <div key={idx} className={`${logClass} mb-2`}>
+                      {log}
+                    </div>
+                  );
+                })
+              )}
             </div>
           </section>
         </div>
@@ -850,21 +941,36 @@ function App() {
           </h3>
           
           <div className="flex flex-col gap-3.5 overflow-y-auto max-h-[500px] pr-1">
-            {jiraIssues.filter(i => i.status === 'Backlog').map(issue => (
-              <div key={issue.key} className="bg-white border border-slate-200 hover:border-slate-350 p-4 rounded-xl flex flex-col gap-3.5 shadow-sm hover:shadow-md transition-all">
-                <span className="text-[9px] font-mono font-bold text-purple-700 bg-purple-100/70 px-2 py-0.5 rounded w-fit border border-purple-200/50">{issue.key}</span>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-900 leading-normal">{issue.summary}</h4>
-                  <p className="text-[10.5px] text-slate-600 mt-1 line-clamp-3 leading-relaxed font-medium">{issue.description}</p>
-                </div>
-                <button
-                  onClick={() => handleImportJiraStory(issue)}
-                  className="mt-1 w-full inline-flex items-center justify-center font-bold text-[10px] px-2.5 py-1.5 rounded bg-indigo-650 text-white hover:bg-indigo-500 shadow-sm transition-all cursor-pointer"
+            {jiraIssues.filter(i => i.status === 'Backlog').map(issue => {
+              const isExpanded = expandedJiraKeys.includes(issue.key);
+              return (
+                <div 
+                  key={issue.key} 
+                  onClick={() => toggleJiraExpand(issue.key)}
+                  className="bg-white border border-slate-200 hover:border-slate-350 p-4 rounded-xl flex flex-col gap-3.5 shadow-sm hover:shadow-md transition-all cursor-pointer"
                 >
-                  Import & Execute
-                </button>
-              </div>
-            ))}
+                  <div className="flex justify-between items-center">
+                    <span className="text-[9px] font-mono font-bold text-purple-700 bg-purple-100/70 px-2 py-0.5 rounded border border-purple-200/50">{issue.key}</span>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase">{isExpanded ? 'Collapse ▲' : 'Expand ▼'}</span>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-900 leading-normal">{issue.summary}</h4>
+                    <p className={`text-[10.5px] text-slate-600 mt-1 leading-relaxed font-medium ${isExpanded ? 'whitespace-pre-wrap' : 'line-clamp-2'}`}>
+                      {issue.description}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleImportJiraStory(issue);
+                    }}
+                    className="mt-1 w-full inline-flex items-center justify-center font-bold text-[10px] px-2.5 py-1.5 rounded bg-indigo-650 text-white hover:bg-indigo-500 shadow-sm transition-all cursor-pointer"
+                  >
+                    Import & Execute
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -878,21 +984,36 @@ function App() {
           </h3>
           
           <div className="flex flex-col gap-3.5 overflow-y-auto max-h-[500px] pr-1">
-            {jiraIssues.filter(i => i.status === 'In Progress').map(issue => (
-              <div key={issue.key} className="bg-white border border-slate-200 hover:border-slate-350 p-4 rounded-xl flex flex-col gap-3.5 shadow-sm hover:shadow-md transition-all border-l-2 border-l-cyan-500">
-                <span className="text-[9px] font-mono font-bold text-cyan-700 bg-cyan-100/70 px-2 py-0.5 rounded w-fit border border-cyan-200/50">{issue.key}</span>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-900 leading-normal">{issue.summary}</h4>
-                  <p className="text-[10.5px] text-slate-600 mt-1 line-clamp-3 leading-relaxed font-medium">{issue.description}</p>
-                </div>
-                <button
-                  onClick={() => handleImportJiraStory(issue)}
-                  className="mt-1 w-full inline-flex items-center justify-center font-bold text-[10px] px-2.5 py-1.5 rounded bg-indigo-650 text-white hover:bg-indigo-500 shadow-sm transition-all cursor-pointer"
+            {jiraIssues.filter(i => i.status === 'In Progress').map(issue => {
+              const isExpanded = expandedJiraKeys.includes(issue.key);
+              return (
+                <div 
+                  key={issue.key} 
+                  onClick={() => toggleJiraExpand(issue.key)}
+                  className="bg-white border border-slate-200 hover:border-slate-350 p-4 rounded-xl flex flex-col gap-3.5 shadow-sm hover:shadow-md transition-all border-l-2 border-l-cyan-500 cursor-pointer"
                 >
-                  Import Story
-                </button>
-              </div>
-            ))}
+                  <div className="flex justify-between items-center">
+                    <span className="text-[9px] font-mono font-bold text-cyan-700 bg-cyan-100/70 px-2 py-0.5 rounded border border-cyan-200/50">{issue.key}</span>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase">{isExpanded ? 'Collapse ▲' : 'Expand ▼'}</span>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-900 leading-normal">{issue.summary}</h4>
+                    <p className={`text-[10.5px] text-slate-600 mt-1 leading-relaxed font-medium ${isExpanded ? 'whitespace-pre-wrap' : 'line-clamp-2'}`}>
+                      {issue.description}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleImportJiraStory(issue);
+                    }}
+                    className="mt-1 w-full inline-flex items-center justify-center font-bold text-[10px] px-2.5 py-1.5 rounded bg-indigo-650 text-white hover:bg-indigo-500 shadow-sm transition-all cursor-pointer"
+                  >
+                    Import Story
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -906,15 +1027,27 @@ function App() {
           </h3>
           
           <div className="flex flex-col gap-3.5 overflow-y-auto max-h-[500px] pr-1">
-            {jiraIssues.filter(i => i.status === 'Done').map(issue => (
-              <div key={issue.key} className="bg-white border border-slate-200/70 p-4 rounded-xl flex flex-col gap-3 opacity-60 border-l-2 border-l-emerald-500 shadow-sm">
-                <span className="text-[9px] font-mono font-bold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded w-fit border border-emerald-200/50">{issue.key}</span>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800 leading-normal line-through">{issue.summary}</h4>
-                  <p className="text-[10.5px] text-slate-500 mt-1 line-clamp-3 leading-relaxed font-medium">{issue.description}</p>
+            {jiraIssues.filter(i => i.status === 'Done').map(issue => {
+              const isExpanded = expandedJiraKeys.includes(issue.key);
+              return (
+                <div 
+                  key={issue.key} 
+                  onClick={() => toggleJiraExpand(issue.key)}
+                  className="bg-white border border-slate-200/70 p-4 rounded-xl flex flex-col gap-3 opacity-60 border-l-2 border-l-emerald-500 shadow-sm cursor-pointer hover:opacity-100 transition-all"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="text-[9px] font-mono font-bold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded border border-emerald-200/50">{issue.key}</span>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase">{isExpanded ? 'Collapse ▲' : 'Expand ▼'}</span>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-800 leading-normal line-through">{issue.summary}</h4>
+                    <p className={`text-[10.5px] text-slate-500 mt-1 leading-relaxed font-medium ${isExpanded ? 'whitespace-pre-wrap' : 'line-clamp-2'}`}>
+                      {issue.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -938,10 +1071,9 @@ function App() {
               <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-xs font-bold text-white shadow-[0_4px_12px_rgba(99,102,241,0.3)] z-10">
                 SC
               </span>
-              <span className="absolute w-8 h-8 rounded-lg bg-indigo-500 animate-ping opacity-25"></span>
             </div>
             {isSidebarExpanded && (
-              <div className="animate-fade-in">
+              <div>
                 <h1 className="text-xs font-extrabold text-slate-800 tracking-widest font-heading">SWE WORKSPACE</h1>
                 <span className="text-[9px] text-indigo-650 font-bold font-mono uppercase tracking-wider">Agent IDE Platform</span>
               </div>
@@ -1142,11 +1274,36 @@ function App() {
             </p>
           </div>
 
-          {activeRepo && (
-            <span className="text-[10.5px] font-mono border border-slate-200 bg-white px-3.5 py-1.5 rounded-full text-slate-600 font-bold shadow-sm">
-              Active Workspace: {activeRepo.name}
-            </span>
-          )}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center bg-slate-100 border border-slate-200 rounded-lg p-1 text-[11px] font-sans">
+              <button
+                onClick={() => setIsSimulated(true)}
+                className={`px-3 py-1 rounded-md font-bold transition-all cursor-pointer ${
+                  isSimulated
+                    ? 'bg-white text-indigo-700 shadow-sm border border-slate-200/50'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                🤖 Mock Simulator
+              </button>
+              <button
+                onClick={() => setIsSimulated(false)}
+                className={`px-3 py-1 rounded-md font-bold transition-all cursor-pointer ${
+                  !isSimulated
+                    ? 'bg-white text-indigo-700 shadow-sm border border-slate-200/50'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                ⚡ Live GPT-4o
+              </button>
+            </div>
+
+            {activeRepo && (
+              <span className="text-[10.5px] font-mono border border-slate-200 bg-white px-3.5 py-1.5 rounded-full text-slate-600 font-bold shadow-sm">
+                Active Workspace: {activeRepo.name}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Real-time statistics telemetry panel (only on Workspace) */}
