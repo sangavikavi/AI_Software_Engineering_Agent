@@ -8,32 +8,162 @@
   --font-mono: 'JetBrains Mono', monospace;
 }
 
-/* Global scrollbar styling */
+/* Global scrollbar styling for light mode */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #09090b;
+  background: #f8fafc;
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
-  border-radius: 4px;
+  background: #cbd5e1;
+  border-radius: 9999px;
+  border: 1px solid #f8fafc;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #71717a;
+  background: #94a3b8;
 }
 
-/* Custom glow utility */
-@utility pulse-glow {
-  animation: pulseGlow 3s infinite ease-in-out;
+/* Light Developer Grid Background */
+.light-grid-bg {
+  background-color: #f8fafc;
+  background-image: 
+    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
-  }
-  50% {
-    box-shadow: 0 0 25px rgba(6, 182, 212, 0.3);
-  }
+/* Premium Light Mode Card Panels */
+.glass-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02), 0 10px 20px -3px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.glass-panel:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03), 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+.glass-panel-interactive:hover {
+  border-color: #6366f1;
+  box-shadow: 0 12px 25px 0 rgba(99, 102, 241, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Light Mode Input Elements */
+.custom-input {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  font-size: 13.5px !important;
+  padding: 10px 14px !important;
+  border-radius: 8px !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.custom-input:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+
+.custom-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Flowchart State Node Map styling - Light Mode */
+.flow-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.35rem;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  min-width: 110px;
+  transition: all 0.3s ease;
+  color: #64748b;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.flow-node-active {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.06);
+  color: #4f46e5;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
+  animation: activeBlink 2s infinite alternate;
+  font-weight: 600;
+}
+
+.flow-node-completed {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+  color: #047857;
+  font-weight: 600;
+}
+
+@keyframes activeBlink {
+  0% { box-shadow: 0 0 6px rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.7); }
+  100% { box-shadow: 0 0 18px rgba(99, 102, 241, 0.35); border-color: rgba(99, 102, 241, 1); }
+}
+
+/* Code Editor Diff gutters and additions - Retaining dark focus for code */
+.diff-code-editor {
+  counter-reset: line;
+  font-family: 'JetBrains Mono', monospace;
+  background: #09090b;
+  border-radius: 8px;
+}
+
+.diff-line {
+  display: flex;
+  padding: 0.25rem 1rem;
+  border-left: 3px solid transparent;
+  line-height: 1.6;
+}
+
+.diff-line-add {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border-left-color: #10b981 !important;
+  color: #34d399 !important;
+  font-weight: 500;
+}
+
+.diff-line-del {
+  background: rgba(244, 63, 94, 0.14) !important;
+  border-left-color: #f43f5e !important;
+  color: #fca5a5 !important;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.diff-line:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Custom animated loading bars */
+.shimmer-bg {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Animations */
+.animate-fade-in {
+  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
