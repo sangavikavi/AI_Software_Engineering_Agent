@@ -124,6 +124,7 @@ def trigger_agent_run(
     
     # 3. Create initial state for LangGraph inputs
     initial_state = {
+        "repository_id": run_in.repository_id,
         "instruction": run_in.instruction,
         "codebase_context": context,
         "plan": [],

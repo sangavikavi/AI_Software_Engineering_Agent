@@ -9,6 +9,7 @@ from app.core.database import Base, engine, get_db
 from app.models.code import Repository
 from app.api.repositories import router as repos_router
 from app.api.agents import router as agents_router
+from app.api.jira import router as jira_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -73,3 +74,4 @@ def get_status(db: Session = Depends(get_db)):
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(repos_router, prefix=settings.API_V1_STR)
 app.include_router(agents_router, prefix=settings.API_V1_STR)
+app.include_router(jira_router, prefix=settings.API_V1_STR)

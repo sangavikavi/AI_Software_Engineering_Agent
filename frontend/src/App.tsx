@@ -17,24 +17,26 @@ interface Repository {
   status: string;
 }
 
-interface LogEntry {
-  timestamp: string;
-  sender: 'system' | 'planner' | 'coder' | 'reviewer' | 'tester';
-  message: string;
-}
-
 interface AgentRunResponse {
   run_id: string;
   repository_id: number;
   instruction: string;
   status: string;
   plan: string[];
-  current_step_index: int;
+  current_step_index: number;
   proposed_changes: Record<string, string>;
   test_results: { success?: boolean; logs?: string; test_run_count?: number; failures?: number };
   review_feedback: { approved?: boolean; feedback?: string };
   history_logs: string[];
   iterations: number;
+}
+
+interface JiraIssue {
+  key: string;
+  summary: string;
+  description: string;
+  status: string;
+  url?: string;
 }
 
 function App() {
@@ -59,6 +61,12 @@ function App() {
   const [runDetails, setRunDetails] = useState<AgentRunResponse | null>(null);
   const [isSubmittingRun, setIsSubmittingRun] = useState(false);
   
+  // Jira Integration states
+  const [jiraIssues, setJiraIssues] = useState<JiraIssue[]>([]);
+  const [newJiraSummary, setNewJiraSummary] = useState('');
+  const [newJiraDesc, setNewJiraDesc] = useState('');
+  const [isCreatingJira, setIsCreatingJira] = useState(false);
+
   // Log stream
   const [logs, setLogs] = useState<string[]>([
     "System: Console online. Awaiting repository connections..."
@@ -66,12 +74,13 @@ function App() {
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-  // 1. Poll Backend Health & Repositories list
+  // 1. Poll Backend Health, Repositories, and Jira Issues list
   const fetchInitialData = async () => {
     try {
       const healthRes = await fetch(`${API_URL}/health`);
       const statusRes = await fetch(`${API_URL}/api/v1/status`);
       const reposRes = await fetch(`${API_URL}/api/v1/repositories`);
+      const jiraRes = await fetch(`${API_URL}/api/v1/jira/issues`);
       
       if (healthRes.ok && statusRes.ok) {
         const statusData = await statusRes.json();
@@ -92,6 +101,11 @@ function App() {
         if (reposData.length > 0 && selectedRepoId === null) {
           setSelectedRepoId(reposData[0].id);
         }
+      }
+
+      if (jiraRes.ok) {
+        const jiraData = await jiraRes.json();
+        setJiraIssues(jiraData);
       }
     } catch (err) {
       setStatus(prev => ({ ...prev, api_online: false }));
@@ -119,6 +133,7 @@ function App() {
           // Stop polling if complete or failed
           if (data.status === 'finished' || data.status === 'failed') {
             setActiveRunId(null);
+            fetchInitialData(); // Refresh backlog status if merged
           }
         }
       } catch (err) {
@@ -218,29 +233,79 @@ function App() {
       if (res.ok) {
         const data = await res.json();
         setRunDetails(prev => prev ? { ...prev, status: 'finished' } : null);
-        setLogs(prev => [...prev, "System: Human approved. Proposed files written to codebase."]);
+        setLogs(prev => [
+          ...prev, 
+          "System: Human approved. Successfully applied changes locally.",
+          `System: Branch pushed & Pull Request created! Link: ${data.pr_url}`
+        ]);
+        fetchInitialData();
       }
     } catch (err) {
       setLogs(prev => [...prev, "System Error: Failed to send approval."]);
     }
   };
 
+  // 6. Create Jira Issue
+  const handleCreateJiraIssue = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newJiraSummary.trim()) return;
+
+    setIsCreatingJira(true);
+    setLogs(prev => [...prev, `System: Posting story '${newJiraSummary}' to Jira Backlog...`]);
+
+    try {
+      const res = await fetch(`${API_URL}/api/v1/jira/issues`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          summary: newJiraSummary,
+          description: newJiraDesc
+        })
+      });
+
+      if (res.ok) {
+        const newIssue = await res.json();
+        setNewJiraSummary('');
+        setNewJiraDesc('');
+        setLogs(prev => [...prev, `System: Jira Issue ${newIssue.key} created successfully.`]);
+        
+        // Refresh Jira issues list
+        const refreshRes = await fetch(`${API_URL}/api/v1/jira/issues`);
+        if (refreshRes.ok) {
+          setJiraIssues(await refreshRes.json());
+        }
+      } else {
+        setLogs(prev => [...prev, "System Error: Failed to create Jira ticket."]);
+      }
+    } catch (err) {
+      setLogs(prev => [...prev, "System Error: Jira connection failed."]);
+    } finally {
+      setIsCreatingJira(false);
+    }
+  };
+
+  // 7. Load Jira Story into active prompt
+  const handleImportJiraStory = (issue: JiraIssue) => {
+    setInstruction(`Implement requirements for issue ${issue.key}:\n${issue.description}`);
+    setLogs(prev => [...prev, `System: Imported requirements from ${issue.key} into prompt.`]);
+  };
+
   return (
-    <div className="min-h-screen bg-[#09090b] text-[#f4f4f5] font-sans">
-      <div className="max-w-[1200px] mx-auto px-4 py-6 w-full">
+    <div className="min-h-screen bg-[#09090b] text-[#f4f4f5] font-sans animate-fade-in">
+      <div className="max-w-[1300px] mx-auto px-4 py-6 w-full">
         {/* Header */}
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-white/8 pb-5 mb-6 gap-4">
           <div>
             <h1 className="text-2xl font-semibold font-heading flex items-center gap-2.5 text-[#f4f4f5]">
-              <svg className="text-cyan-400" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg className="text-cyan-400 animate-pulse" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M2 17L12 22L22 17" stroke="var(--color-purple)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Antigravity SWE Agent Platform
+              AI Software Engineer Platform
             </h1>
             <p className="text-zinc-400 text-sm mt-1">
-              Autonomous Multi-Agent Repository Engineering Console
+              Autonomous Multi-Agent Engineering Engine & Jira Backlog Console
             </p>
           </div>
           
@@ -401,12 +466,12 @@ function App() {
 
           </div>
 
-          {/* Right Column (Graph States & Diffs) */}
+          {/* Right Column (Graph States & Backlog) */}
           <div className="flex flex-col gap-6">
             
             {/* Human Gate Actions */}
             {runDetails && runDetails.status === 'ready' && (
-              <section className="bg-[#121214] border border-cyan-500/30 rounded-xl p-6 transition-all duration-200 hover:shadow-2xl hover:shadow-cyan-500/10 pulse-glow border-t-4 border-t-cyan-400">
+              <section className="bg-[#121214] border border-cyan-500/30 rounded-xl p-6 transition-all duration-200 hover:shadow-2xl hover:shadow-cyan-500/10 border-t-4 border-t-cyan-400">
                 <h2 className="text-lg font-semibold mb-2 text-[#f4f4f5] flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
                   Human Gate: Review Required
@@ -465,13 +530,87 @@ function App() {
 
             {/* Reviewer Comments */}
             {runDetails && runDetails.review_feedback.feedback && (
-              <section className="bg-[#121214] border border-white/8 rounded-xl p-6 transition-all duration-200 hover:border-white/16 border-l-4 border-l-violet-500">
+              <section className="bg-[#121214] border border-white/8 rounded-xl p-6 transition-all duration-200 hover:border-white/16 border-l-4 border-l-purple-500">
                 <h2 className="text-md font-semibold mb-2 text-[#f4f4f5]">Reviewer Evaluation</h2>
                 <div className="text-xs text-zinc-300 italic bg-white/2 p-3 border border-white/8 rounded-lg">
                   "{runDetails.review_feedback.feedback}"
                 </div>
               </section>
             )}
+
+            {/* Jira Backlog Sidebar Widget */}
+            <section className="bg-[#121214] border border-white/8 rounded-xl p-6 transition-all duration-200 hover:border-white/16 border-l-4 border-l-purple-500">
+              <h2 className="text-lg font-semibold mb-2 flex items-center gap-2 text-[#f4f4f5]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg>
+                Jira Project Backlog
+              </h2>
+              <p className="text-zinc-400 text-xs mb-4">
+                Manage tickets and user stories. Click "Import" to pre-fill the agent workspace prompt with ticket description requirements.
+              </p>
+
+              {/* Form to create issue */}
+              <form onSubmit={handleCreateJiraIssue} className="flex flex-col gap-2.5 mb-4 border-b border-white/8 pb-4">
+                <input
+                  type="text"
+                  placeholder="Ticket Summary..."
+                  value={newJiraSummary}
+                  onChange={(e) => setNewJiraSummary(e.target.value)}
+                  className="bg-[#09090b] border border-white/8 rounded-lg px-3 py-2 text-[#f4f4f5] text-xs outline-none focus:border-purple-500/50"
+                  required
+                />
+                <textarea
+                  placeholder="Ticket Description/Requirements..."
+                  value={newJiraDesc}
+                  onChange={(e) => setNewJiraDesc(e.target.value)}
+                  rows={2}
+                  className="bg-[#09090b] border border-white/8 rounded-lg px-3 py-2 text-[#f4f4f5] text-xs outline-none focus:border-purple-500/50 resize-none"
+                />
+                <button
+                  type="submit"
+                  disabled={isCreatingJira || !newJiraSummary}
+                  className="inline-flex items-center justify-center font-semibold text-xs px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-400 hover:bg-purple-500/20 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {isCreatingJira ? 'Creating...' : '+ Create Jira Ticket'}
+                </button>
+              </form>
+
+              {/* Backlog List */}
+              <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1">
+                {jiraIssues.length === 0 ? (
+                  <div className="text-center py-4 text-xs text-zinc-500">No active Jira issues found.</div>
+                ) : (
+                  jiraIssues.map((issue) => (
+                    <div key={issue.key} className="bg-white/2 border border-white/8 rounded-lg p-3 hover:border-white/16 transition-all flex flex-col gap-2">
+                      <div className="flex justify-between items-start gap-2">
+                        <span className="text-[10px] font-bold font-mono text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded">
+                          {issue.key}
+                        </span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                          issue.status === 'Done' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' :
+                          issue.status === 'In Progress' ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30' :
+                          'bg-zinc-500/15 text-zinc-400 border border-white/8'
+                        }`}>
+                          {issue.status}
+                        </span>
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-semibold text-zinc-200 line-clamp-1">{issue.summary}</h4>
+                        <p className="text-[11px] text-zinc-400 line-clamp-2 mt-1">{issue.description}</p>
+                      </div>
+                      <button
+                        onClick={() => handleImportJiraStory(issue)}
+                        className="mt-1 w-full inline-flex items-center justify-center font-medium text-[11px] px-3 py-1.5 rounded bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+                      >
+                        Import Story to Prompt
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
 
           </div>
         </div>

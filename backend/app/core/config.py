@@ -8,6 +8,12 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     GITHUB_TOKEN: str = ""
     
+    # Jira Configuration
+    JIRA_URL: str = ""
+    JIRA_EMAIL: str = ""
+    JIRA_API_TOKEN: str = ""
+    JIRA_PROJECT_KEY: str = "KAN"
+    
     # CORS Origins allowed to talk to the backend
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:5173",

@@ -1,0 +1,14 @@
+[
+  {
+    "key": "KAN-101",
+    "summary": "Fix route path in repositories API",
+    "description": "Locate repos_router in app/main.py and ensure the route prefix matches /api/v1/repositories.",
+    "status": "Backlog"
+  },
+  {
+    "key": "KAN-102",
+    "summary": "Implement route for repository search",
+    "description": "Create a GET route for /search that returns indexed codebases matching search query strings.",
+    "status": "In Progress"
+  }
+]
