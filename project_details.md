@@ -1,6 +1,6 @@
 # AI Software Engineering (SWE) Agent Platform - Interview & Project Guide
 
-This guide describes what the project is, its core benefits, how it is implemented in simple terms, and how to pitch and defend it during technical interviews.
+This guide describes what the project is, its core benefits, how it is implemented, and the step-by-step developer workflows.
 
 ---
 
@@ -19,10 +19,48 @@ When given a requirement, it automatically analyzes the codebase, plans the task
 
 ---
 
-## 3. How It Is Implemented (The 4 Pillars)
+## 3. End-to-End Developer Workflows
+
+You can trigger the coding agent in two ways: **Jira-Triggered** or **Manual Input**.
+
+### Workflow A: The Jira-Triggered Path (Standard)
+This path pulls tasks directly from your Atlassian backlog and automatically syncs PR links.
+
+1. **Requirement Source**: You view active tickets fetched from Jira Cloud on the **Jira Board** page.
+2. **Trigger**: You click **Import & Execute** on a specific ticket (e.g., ticket `KAN-102` with summary *"Fix repo search API"*).
+3. **Prompt Generation**: The system reads the ticket key and description, automatically pasting them into your active console prompt:
+   `"Implement requirements for issue KAN-102: Fix repo search API..."`
+4. **Planning & Writing**: The agent compiles the task list, semantic searches the code, and writes code updates.
+5. **Sandbox Verification**: The agent tests edits in a temp sandbox workspace via `pytest` and `py_compile`.
+6. **Approval Gate**: You review the proposed diff. Once you click **Approve & Open PR**:
+   - The backend creates branch `swe-agent/patch-<unique-id>`.
+   - The commit message generated includes the Jira ticket key:
+     `git commit -m "feat: SWE patch - Implement requirements for issue KAN-102:..."`
+   - The branch is pushed and the PR is raised.
+7. **Jira Linkage**: Atlassian's GitHub integration detects the key `KAN-102` in the commit message and **automatically links the Pull Request to the Jira ticket** in your Jira Cloud dashboard.
+
+---
+
+### Workflow B: The Manual Input Path
+This path allows you to type custom prompt instructions directly into the console.
+
+1. **Requirement Source**: You type an instruction manually into the input bar in the **Workspace Console**.
+   - *Example 1 (With Key)*: `"KAN-102: add a password reset route"`
+   - *Example 2 (No Key)*: `"add a password reset route"`
+2. **Execution**: The agent runs the standard Planner-Coder-Tester cycle.
+3. **Approval Gate**: You review the proposed diff and click **Approve & Open PR**.
+4. **Commit Creation**: The backend generates a commit message:
+   `git commit -m "feat: SWE patch - <your manual text>"`
+5. **Jira Linkage Rule**:
+   - **If you included the key (Example 1)**: The commit message contains `KAN-102`. Jira Cloud will recognize this pattern and **successfully link** the PR to your Jira ticket.
+   - **If you omitted the key (Example 2)**: The commit message does not contain any Jira reference. The Pull Request will still be created on GitHub, but it **will not link** to any Jira ticket.
+
+---
+
+## 4. How It Is Implemented (The 4 Pillars)
 
 ```
-[ Jira Ticket ] ➔ [ RAG Semantic Search ] ➔ [ LangGraph Agent Loop ] ➔ [ Subprocess Sandbox ] ➔ [ Git & GitHub PR ]
+[ Jira Ticket / Manual Prompt ] ➔ [ RAG Semantic Search ] ➔ [ LangGraph Agent Loop ] ➔ [ Subprocess Sandbox ] ➔ [ Git & GitHub PR ]
 ```
 
 1. **RAG Code Ingestion (SQLite + Numpy)**:
@@ -40,14 +78,6 @@ When given a requirement, it automatically analyzes the codebase, plans the task
 4. **Git Operations & GitHub REST API**:
    - If approved by the user, the backend runs local Git commands via a subprocess to checkout a patch branch, commit, and push.
    - It calls the GitHub REST API (`/pulls` endpoint) to open a Pull Request.
-
----
-
-## 4. How to Pitch the Project in an Interview (The 1-Minute Summary)
-
-> *"For my project, I built an **Autonomous AI Software Engineering Agent Platform** using **FastAPI** and **React**. The goal was to build a system that can take a Jira ticket requirement and automatically implement, test, and deliver the code change as a GitHub Pull Request.*
->
-> *I designed it using a **RAG architecture** to index and search code chunks locally, and **LangGraph** to model the developer workflow as a state machine. Instead of relying on a single prompt, the platform orchestrates cooperation between specialized agents: a Planner, a Coder, a Tester, and a Reviewer. If tests fail in our secure subprocess execution sandbox, the Tester agent feeds the logs back to the Coder to debug automatically. Once all tests pass, the system presents a code diff screen to the engineer, who can approve it with one click to trigger git branch creation, remote pushing, and Pull Request registration via the GitHub API."*
 
 ---
 
