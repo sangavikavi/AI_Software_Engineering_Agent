@@ -8,6 +8,8 @@ The **AI SWE Agent Platform** is an autonomous developer workspace inspired by D
 
 Below is the conceptual architecture mapping the data flow from requirement ingestions to GitHub Pull Request delivery:
 
+![Architecture Diagram](architecture_diagram.png)
+
 ```mermaid
 flowchart TD
     subgraph Frontend [React Web UI]
