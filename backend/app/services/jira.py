@@ -112,6 +112,10 @@ async def create_jira_issue(title: str, description: str) -> Dict[str, Any]:
     # 2. Real Jira REST Client Mode
     api_url = f"{url.rstrip('/')}/rest/api/3/issue"
     
+    # Fallback to avoid empty ADF text nodes which fail Jira schema validation
+    if not description or not description.strip():
+        description = "No description provided."
+    
     # Encode base64 token
     auth_str = f"{email}:{token}"
     auth_b64 = base64.b64encode(auth_str.encode("utf-8")).decode("utf-8")
