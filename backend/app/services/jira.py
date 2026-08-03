@@ -235,11 +235,20 @@ async def list_jira_issues() -> List[Dict[str, Any]]:
             elif desc_doc:
                 desc_text = str(desc_doc)
                 
+            status_name = fields.get("status", {}).get("name", "Backlog")
+            # Normalize Jira status names to match frontend columns (Backlog, In Progress, Done)
+            if status_name.lower() in ["backlog", "to do", "to-do", "todo", "new"]:
+                status_name = "Backlog"
+            elif status_name.lower() in ["in progress", "inprogress", "doing", "active"]:
+                status_name = "In Progress"
+            elif status_name.lower() in ["done", "completed", "finished", "resolved"]:
+                status_name = "Done"
+
             issues_list.append({
                 "key": item.get("key", ""),
                 "summary": fields.get("summary", ""),
                 "description": desc_text,
-                "status": fields.get("status", {}).get("name", "Backlog")
+                "status": status_name
             })
         return issues_list
     else:
