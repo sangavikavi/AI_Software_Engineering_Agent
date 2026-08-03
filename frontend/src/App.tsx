@@ -1294,7 +1294,7 @@ function App() {
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                ⚡ Live GPT-4o
+                ⚡ Live LLM API
               </button>
             </div>
 
