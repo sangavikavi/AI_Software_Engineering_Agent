@@ -166,6 +166,9 @@ function App() {
             setActiveRunId(null);
             fetchInitialData();
           }
+        } else if (res.status === 404) {
+          setActiveRunId(null);
+          setRunDetails(null);
         }
       } catch (err) {
         console.error('Error polling agent run status:', err);
