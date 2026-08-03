@@ -190,7 +190,7 @@ async def list_jira_issues() -> List[Dict[str, Any]]:
         
     # 2. Real Jira REST Client Mode
     jql = f"project = {project_key} ORDER BY created DESC"
-    api_url = f"{url.rstrip('/')}/rest/api/3/search"
+    api_url = f"{url.rstrip('/')}/rest/api/3/search/jql"
     
     # Encode base64 token
     auth_str = f"{email}:{token}"
