@@ -426,7 +426,7 @@ function App() {
               <button
                 type="submit"
                 disabled={isSubmittingRun || activeRunId !== null || !instruction || selectedRepoId === null}
-                className="inline-flex items-center justify-center font-bold text-xs px-6 py-2.5 rounded-lg bg-indigo-650 text-white hover:bg-indigo-500 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center justify-center font-bold text-xs px-6 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
               >
                 {isSubmittingRun || activeRunId !== null ? 'RUNNING...' : 'EXECUTE'}
               </button>
@@ -514,12 +514,12 @@ function App() {
               ) : (
                 getFilteredLogs().map((log, idx) => {
                   let logClass = "text-slate-800";
-                  if (log.toLowerCase().includes("error")) logClass = "text-rose-655 font-bold";
-                  else if (log.toLowerCase().includes("system:")) logClass = "text-cyan-655 font-bold";
-                  else if (log.toLowerCase().includes("planner:")) logClass = "text-indigo-655 font-semibold";
-                  else if (log.toLowerCase().includes("coder:")) logClass = "text-amber-655 font-semibold";
-                  else if (log.toLowerCase().includes("tester:")) logClass = "text-emerald-655 font-semibold";
-                  else if (log.toLowerCase().includes("reviewer:")) logClass = "text-purple-655 font-bold";
+                  if (log.toLowerCase().includes("error")) logClass = "text-rose-600 font-bold";
+                  else if (log.toLowerCase().includes("system:")) logClass = "text-cyan-600 font-bold";
+                  else if (log.toLowerCase().includes("planner:")) logClass = "text-indigo-600 font-semibold";
+                  else if (log.toLowerCase().includes("coder:")) logClass = "text-amber-600 font-semibold";
+                  else if (log.toLowerCase().includes("tester:")) logClass = "text-emerald-600 font-semibold";
+                  else if (log.toLowerCase().includes("reviewer:")) logClass = "text-purple-600 font-bold";
 
                   return (
                     <div key={idx} className={`${logClass} mb-2`}>
@@ -544,10 +544,10 @@ function App() {
                   
                   return (
                     <div key={idx} className="flex gap-3 items-start text-[12px] leading-relaxed">
-                      <span className={`font-bold text-[14px] ${isCompleted ? 'text-emerald-600' : isActive ? 'text-indigo-655' : 'text-slate-400'}`}>
+                      <span className={`font-bold text-[14px] ${isCompleted ? 'text-emerald-600' : isActive ? 'text-indigo-600' : 'text-slate-400'}`}>
                         {isCompleted ? '✔' : isActive ? '▶' : '○'}
                       </span>
-                      <div className={isCompleted ? 'text-slate-400 line-through' : isActive ? 'text-indigo-655 font-bold' : 'text-slate-700 font-semibold'}>
+                      <div className={isCompleted ? 'text-slate-400 line-through' : isActive ? 'text-indigo-600 font-bold' : 'text-slate-700 font-semibold'}>
                         {step}
                       </div>
                     </div>
@@ -621,7 +621,7 @@ function App() {
           <button
             type="submit"
             disabled={isConnecting || !repoUrl || !repoName}
-            className="mt-2 w-full inline-flex items-center justify-center font-bold text-xs px-5 py-2.5 rounded-lg bg-indigo-650 text-white hover:bg-indigo-655/95 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
+            className="mt-2 w-full inline-flex items-center justify-center font-bold text-xs px-5 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
           >
             {isConnecting ? 'Cloning & Parsing...' : 'Connect Git URL'}
           </button>
@@ -811,7 +811,7 @@ function App() {
                     href={prUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full inline-flex items-center justify-center font-bold text-xs px-4 py-2.5 rounded-lg bg-indigo-650 text-white hover:bg-indigo-500 shadow-md transition-all text-center cursor-pointer"
+                    className="w-full inline-flex items-center justify-center font-bold text-xs px-4 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 shadow-md transition-all text-center cursor-pointer"
                   >
                     View PR on GitHub ↗
                   </a>
@@ -848,7 +848,7 @@ function App() {
             {Object.entries(runDetails.proposed_changes).map(([filePath, content]) => (
               <div key={filePath} className="border border-slate-200 rounded-lg overflow-hidden flex flex-col shadow">
                 <div className="bg-slate-50 border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
-                  <span className="font-mono text-xs text-indigo-655 font-bold truncate max-w-[300px]">{filePath}</span>
+                  <span className="font-mono text-xs text-indigo-600 font-bold truncate max-w-[300px]">{filePath}</span>
                   <span className="text-[9px] text-slate-400 font-bold uppercase font-mono tracking-wider">COMPLETE FILE</span>
                 </div>
                 
@@ -921,7 +921,7 @@ function App() {
           <button
             type="submit"
             disabled={isCreatingJira || !newJiraSummary}
-            className="mt-1 w-full inline-flex items-center justify-center font-semibold text-xs px-5 py-2.5 rounded-lg bg-indigo-650 text-white hover:bg-indigo-650/95 shadow transition-all cursor-pointer disabled:opacity-50"
+            className="mt-1 w-full inline-flex items-center justify-center font-semibold text-xs px-5 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 shadow transition-all cursor-pointer disabled:opacity-50"
           >
             {isCreatingJira ? 'Creating...' : '+ Log Ticket'}
           </button>
@@ -964,7 +964,7 @@ function App() {
                       e.stopPropagation();
                       handleImportJiraStory(issue);
                     }}
-                    className="mt-1 w-full inline-flex items-center justify-center font-bold text-[10px] px-2.5 py-1.5 rounded bg-indigo-650 text-white hover:bg-indigo-500 shadow-sm transition-all cursor-pointer"
+                    className="mt-1 w-full inline-flex items-center justify-center font-bold text-[10px] px-2.5 py-1.5 rounded bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition-all cursor-pointer"
                   >
                     Import & Execute
                   </button>
@@ -1007,7 +1007,7 @@ function App() {
                       e.stopPropagation();
                       handleImportJiraStory(issue);
                     }}
-                    className="mt-1 w-full inline-flex items-center justify-center font-bold text-[10px] px-2.5 py-1.5 rounded bg-indigo-650 text-white hover:bg-indigo-500 shadow-sm transition-all cursor-pointer"
+                    className="mt-1 w-full inline-flex items-center justify-center font-bold text-[10px] px-2.5 py-1.5 rounded bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition-all cursor-pointer"
                   >
                     Import Story
                   </button>
@@ -1075,7 +1075,7 @@ function App() {
             {isSidebarExpanded && (
               <div>
                 <h1 className="text-xs font-extrabold text-slate-800 tracking-widest font-heading">SWE WORKSPACE</h1>
-                <span className="text-[9px] text-indigo-650 font-bold font-mono uppercase tracking-wider">Agent IDE Platform</span>
+                <span className="text-[9px] text-indigo-600 font-bold font-mono uppercase tracking-wider">Agent IDE Platform</span>
               </div>
             )}
           </div>
@@ -1111,12 +1111,12 @@ function App() {
               } ${
                 currentPage === 'workspace'
                   ? 'bg-indigo-50 border border-indigo-200/70 text-indigo-700 shadow-sm'
-                  : 'text-slate-650 border border-transparent'
+                  : 'text-slate-600 border border-transparent'
               }`}
               title={isSidebarExpanded ? "" : "Workspace Console"}
             >
-              {currentPage === 'workspace' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-650 rounded-r"></span>}
-              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'workspace' ? 'text-indigo-650' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              {currentPage === 'workspace' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-600 rounded-r"></span>}
+              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'workspace' ? 'text-indigo-600' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                 <line x1="9" y1="3" x2="9" y2="21" />
               </svg>
@@ -1130,12 +1130,12 @@ function App() {
               } ${
                 currentPage === 'repos'
                   ? 'bg-indigo-50 border border-indigo-200/70 text-indigo-700 shadow-sm'
-                  : 'text-slate-655 border border-transparent'
+                  : 'text-slate-600 border border-transparent'
               }`}
               title={isSidebarExpanded ? "" : "Codebase Repos"}
             >
-              {currentPage === 'repos' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-650 rounded-r"></span>}
-              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'repos' ? 'text-indigo-650' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              {currentPage === 'repos' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-600 rounded-r"></span>}
+              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'repos' ? 'text-indigo-600' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
               </svg>
               {isSidebarExpanded && <span className="animate-fade-in">Codebase Repos</span>}
@@ -1153,12 +1153,12 @@ function App() {
               } ${
                 currentPage === 'sandbox'
                   ? 'bg-indigo-50 border border-indigo-200/70 text-indigo-700 shadow-sm'
-                  : 'text-slate-655 border border-transparent'
+                  : 'text-slate-600 border border-transparent'
               }`}
               title={isSidebarExpanded ? "" : "Sandbox Runner"}
             >
-              {currentPage === 'sandbox' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-650 rounded-r"></span>}
-              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'sandbox' ? 'text-indigo-650' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              {currentPage === 'sandbox' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-600 rounded-r"></span>}
+              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'sandbox' ? 'text-indigo-600' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <path d="M10 2v7.31L4.75 19.9a1 1 0 0 0 .89 1.45h12.72a1 1 0 0 0 .89-1.45L14 9.31V2M8.5 2h7M7 16h10" />
               </svg>
               {isSidebarExpanded && <span className="animate-fade-in">Sandbox Runner</span>}
@@ -1171,12 +1171,12 @@ function App() {
               } ${
                 currentPage === 'git'
                   ? 'bg-indigo-50 border border-indigo-200/70 text-indigo-700 shadow-sm'
-                  : 'text-slate-655 border border-transparent'
+                  : 'text-slate-600 border border-transparent'
               }`}
               title={isSidebarExpanded ? "" : "Git & PR Manager"}
             >
-              {currentPage === 'git' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-650 rounded-r"></span>}
-              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'git' ? 'text-indigo-650' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              {currentPage === 'git' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-600 rounded-r"></span>}
+              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'git' ? 'text-indigo-600' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <circle cx="18" cy="18" r="3" />
                 <circle cx="6" cy="6" r="3" />
                 <circle cx="6" cy="18" r="3" />
@@ -1197,12 +1197,12 @@ function App() {
               } ${
                 currentPage === 'jira'
                   ? 'bg-indigo-50 border border-indigo-200/70 text-indigo-700 shadow-sm'
-                  : 'text-slate-655 border border-transparent'
+                  : 'text-slate-600 border border-transparent'
               }`}
               title={isSidebarExpanded ? "" : "Jira Board"}
             >
-              {currentPage === 'jira' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-650 rounded-r"></span>}
-              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'jira' ? 'text-indigo-650' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              {currentPage === 'jira' && isSidebarExpanded && <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-600 rounded-r"></span>}
+              <svg className={`w-4 h-4 flex-shrink-0 ${currentPage === 'jira' ? 'text-indigo-600' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                 <line x1="3" y1="9" x2="21" y2="9" />
                 <line x1="9" y1="21" x2="9" y2="9" />
