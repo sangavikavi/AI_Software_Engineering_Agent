@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     JIRA_API_TOKEN: str = ""
     JIRA_PROJECT_KEY: str = "KAN"
     
+    # LLM Configuration
+    OPENAI_API_KEY: str = ""
+    GROQ_API_KEY: str = ""
+    GEMINI_API_KEY: str = ""
+    
     # CORS Origins allowed to talk to the backend
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:5173",
@@ -24,5 +29,6 @@ class Settings(BaseSettings):
     class Config:
         case_sensitive = True
         env_file = ".env"
+        extra = "ignore"
 
 settings = Settings()

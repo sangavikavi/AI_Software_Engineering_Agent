@@ -16,14 +16,58 @@ except ImportError:
 def call_llm(system_prompt: str, user_prompt: str) -> str:
     """
     General entry point to call the LLM model.
-    Falls back to a structured rule-based mock engine if no API keys are present.
+    Checks for Groq, Gemini, or OpenAI API keys and launches OpenAI-compatible calls,
+    falling back to a structured rule-based mock engine if no keys are present.
     """
-    api_key = os.environ.get("OPENAI_API_KEY")
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    groq_key = os.environ.get("GROQ_API_KEY")
+    gemini_key = os.environ.get("GEMINI_API_KEY")
     
-    if HAS_OPENAI and api_key:
+    if not HAS_OPENAI:
+        return get_mock_llm_response(system_prompt, user_prompt)
+        
+    # 1. Groq (Completely free high-speed tier for Llama 3)
+    if groq_key:
+        try:
+            logger.info("Executing LLM call using Groq API...")
+            client = OpenAI(api_key=groq_key, base_url="https://api.groq.com/openai/v1")
+            response = client.chat.completions.create(
+                model="llama-3.1-70b-versatile",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=0.2
+            )
+            return response.choices[0].message.content or ""
+        except Exception as e:
+            logger.error(f"Groq API call failed, falling back: {e}")
+            
+    # 2. Google Gemini (Free tier for Gemini 1.5 Flash via AI Studio)
+    if gemini_key:
+        try:
+            logger.info("Executing LLM call using Gemini API...")
+            client = OpenAI(
+                api_key=gemini_key,
+                base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+            )
+            response = client.chat.completions.create(
+                model="gemini-1.5-flash",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=0.2
+            )
+            return response.choices[0].message.content or ""
+        except Exception as e:
+            logger.error(f"Gemini API call failed, falling back: {e}")
+
+    # 3. Standard OpenAI API
+    if openai_key:
         try:
             logger.info("Executing LLM call using OpenAI API...")
-            client = OpenAI(api_key=api_key)
+            client = OpenAI(api_key=openai_key)
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
@@ -34,7 +78,7 @@ def call_llm(system_prompt: str, user_prompt: str) -> str:
             )
             return response.choices[0].message.content or ""
         except Exception as e:
-            logger.error(f"OpenAI API call failed, falling back to mock generator: {e}")
+            logger.error(f"OpenAI API call failed, falling back: {e}")
             
     # Local mock simulation fallback
     return get_mock_llm_response(system_prompt, user_prompt)
