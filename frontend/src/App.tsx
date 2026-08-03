@@ -220,6 +220,48 @@ function App() {
     }
   };
 
+  const handleReindex = async (repoId: number) => {
+    try {
+      setLogs(prev => [...prev, `System: Triggering manual re-indexing for repository ID ${repoId}...`]);
+      const res = await fetch(`${API_URL}/api/v1/repositories/${repoId}/index`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        setLogs(prev => [...prev, `System: Re-indexing task scheduled successfully.`]);
+        fetchInitialData();
+      } else {
+        setLogs(prev => [...prev, `System Error: Failed to trigger re-indexing.`]);
+      }
+    } catch (err) {
+      console.error('Error re-indexing repository:', err);
+      setLogs(prev => [...prev, `System Error: Re-indexing trigger failed.`]);
+    }
+  };
+
+  const handleDeleteRepo = async (repoId: number) => {
+    if (!window.confirm('Are you sure you want to disconnect this repository? This will wipe all its code chunks and vector embeddings.')) {
+      return;
+    }
+    try {
+      setLogs(prev => [...prev, `System: Disconnecting repository ID ${repoId} and wiping database cache...`]);
+      const res = await fetch(`${API_URL}/api/v1/repositories/${repoId}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setLogs(prev => [...prev, `System: Repository disconnected successfully.`]);
+        if (selectedRepoId === repoId) {
+          setSelectedRepoId(null);
+        }
+        fetchInitialData();
+      } else {
+        setLogs(prev => [...prev, `System Error: Failed to delete repository.`]);
+      }
+    } catch (err) {
+      console.error('Error deleting repository:', err);
+      setLogs(prev => [...prev, `System Error: Disconnect request failed.`]);
+    }
+  };
+
   // 4. Trigger LangGraph Agent execution
   const handleRunAgent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -676,6 +718,29 @@ function App() {
                   }`}>
                     {repo.status.toUpperCase()}
                   </span>
+                  
+                  <div className="flex items-center gap-2 mt-1.5 md:mt-0">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleReindex(repo.id);
+                      }}
+                      className="px-2 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded text-[10px] font-bold cursor-pointer transition-all shadow-sm flex items-center gap-1"
+                      title="Re-index this codebase"
+                    >
+                      🔄 Re-index
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteRepo(repo.id);
+                      }}
+                      className="px-2 py-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded text-[10px] font-bold cursor-pointer transition-all shadow-sm flex items-center gap-1"
+                      title="Disconnect repo and clear database"
+                    >
+                      🗑 Disconnect
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

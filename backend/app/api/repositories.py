@@ -145,4 +145,25 @@ def search_repository_codebase(
     results = search_codebase(db, repo_id, query, top_k)
     return results
 
+@router.delete("/{repo_id}")
+def delete_repository(repo_id: int, db: Session = Depends(get_db)):
+    """
+    Disconnect and delete a repository, clearing its files, chunks, and embeddings.
+    """
+    repo = db.query(Repository).filter(Repository.id == repo_id).first()
+    if not repo:
+        raise HTTPException(status_code=404, detail="Repository not found")
+        
+    try:
+        if repo.local_path and os.path.exists(repo.local_path):
+            import shutil
+            if "clones" in repo.local_path:
+                shutil.rmtree(repo.local_path, ignore_errors=True)
+    except Exception as e:
+        logger.error(f"Failed to clean up cloned folder {repo.local_path}: {e}")
+
+    db.delete(repo)
+    db.commit()
+    return {"message": "Repository deleted and embeddings cleared successfully."}
+
 import os
